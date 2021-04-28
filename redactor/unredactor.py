@@ -93,11 +93,12 @@ def get_named_entities(list_filedata):
 def Model_training():
 
     train_data = get_traindata([['aclImdb/train/pos/*.txt']])
-    if ( len(train_data) > 0):
 
+    if ( len(train_data) > 0):
         named_entities=get_named_entities(train_data)
         y_train = []
         x_train = []
+        
         for item in named_entities:
             y_train.append(item['F1'])
             del item['F1']
@@ -105,10 +106,7 @@ def Model_training():
 
         vec = DictVectorizer(sparse=False)
         x_train = vec.fit_transform(x_train)
-        #print(x_train)
         y_train = np.array(y_train)
-        #print("Features:", vec.get_feature_names())
-        #Training the model
         model= MultinomialNB()
         model.fit(x_train, y_train)
 
@@ -119,40 +117,40 @@ def Model_training():
 
 model = Model_training()
 
-def get_redactednameentities(totaldata):
-    totalredacteddata=[]
-
-    redactednameentitycount=[]
-    for doc in totaldata:
-        personslist = []
-        chunklist = nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(doc)))
-        for chunk in chunklist.subtrees(filter=lambda t: t.label() == 'PERSON'):
-            name=[]
-            #print(chunk)
-            for leave in chunk.leaves():
-                name.append(leave[0])
-                print(leave[0])
-            personslist.append(' '.join(name))
-        print('test data person names',personslist)    
-        setofnameslist = list(set(personslist))
-        #sorting based on length of the name and sorting in descending order
-        setofnameslist=sorted(setofnameslist,key=lambda name: len(name),reverse=True)
-        print('set of name list :',setofnameslist)
-        for itemname in setofnameslist:
+def get_redactednameentities(list_filedata):
+    
+    if ( len(list_filedata) == 0):
+        raise Exception('Empty text data')
+    list_redacted_data = []
+    for data in list_filedata:
+        words = nltk.word_tokenize(data)
+        word_tokens = nltk.pos_tag(words)
+        named_entities = nltk.ne_chunk(word_tokens)
+        list_person_names = []
+        for entity in named_entities.subtrees():
+            word_name =[]
+            if ( entity.label() == 'PERSON'):
+                for leaf in entity.leaves():
+                    word_name.append(leaf[0])
+                    
+                word_name = ' '.join(word_name)
+                list_person_names.append(word_name)
+    
+        set1 = list(set(list_person_names))
+        print('set of name list :',set1)
+        for itemname in set1:
             itemnamelist=itemname.split()
             print(itemnamelist)
-           # print(itemname,len(itemname))
-            #doc = doc.replace(itemname,str( '█' * len(itemname)))
             if(len(itemnamelist)==1):
-                doc = doc.replace(itemname, '█' * len(itemname)+'#')
+                data = data.replace(itemname, '█' * len(itemname)+'#')
             elif(len(itemnamelist) == 2):
-                doc = doc.replace(itemname, '█' * len(itemnamelist[0])+'#'+'█' * len(itemnamelist[1]))
+                data = data.replace(itemname, '█' * len(itemnamelist[0])+'#'+'█' * len(itemnamelist[1]))
             elif (len(itemnamelist) == 3):
-                doc = doc.replace(itemname, '█' * len(itemnamelist[0]) +'#'+ '█' * len(itemnamelist[1])+ '#' + '█' * len(itemnamelist[2]))
+                data = data.replace(itemname, '█' * len(itemnamelist[0]) +'#'+ '█' * len(itemnamelist[1])+ '#' + '█' * len(itemnamelist[2]))
             elif (len(itemnamelist) == 4):
-                doc = doc.replace(itemname, '█' * len(itemnamelist[0]) + '#' + '█' * len(itemnamelist[1])+ '#' + '█' * len(itemnamelist[2])+ '#' + '█' * len(itemnamelist[3]))
-        totalredacteddata.append(doc)
-    return totalredacteddata
+                data = data.replace(itemname, '█' * len(itemnamelist[0]) + '#' + '█' * len(itemnamelist[1])+ '#' + '█' * len(itemnamelist[2])+ '#' + '█' * len(itemnamelist[3]))
+        list_redacted_data.append(data)
+    return list_redacted_data
 
 
 
