@@ -138,17 +138,19 @@ def get_redactednameentities(list_filedata):
     
         set1 = list(set(list_person_names))
         print('set of name list :',set1)
-        for itemname in set1:
-            itemnamelist=itemname.split()
-            print(itemnamelist)
-            if(len(itemnamelist)==1):
-                data = data.replace(itemname, '█' * len(itemname)+'#')
-            elif(len(itemnamelist) == 2):
-                data = data.replace(itemname, '█' * len(itemnamelist[0])+'#'+'█' * len(itemnamelist[1]))
-            elif (len(itemnamelist) == 3):
-                data = data.replace(itemname, '█' * len(itemnamelist[0]) +'#'+ '█' * len(itemnamelist[1])+ '#' + '█' * len(itemnamelist[2]))
-            elif (len(itemnamelist) == 4):
-                data = data.replace(itemname, '█' * len(itemnamelist[0]) + '#' + '█' * len(itemnamelist[1])+ '#' + '█' * len(itemnamelist[2])+ '#' + '█' * len(itemnamelist[3]))
+        for person_name in set1:
+            list_name=person_name.split()
+            print(list_name)
+            pattern = '\u2588'
+            if(len(list_name)==1):
+                data = data.replace(person_name, pattern * len(list_name)+'#')
+            elif(len(list_name) == 2):
+                data = data.replace(person_name, pattern * len(list_name[0])+'#'+ pattern * len(list_name[1]))
+            elif (len(list_name) == 3):
+                data = data.replace(person_name, pattern * len(list_name[0]) +'#'+ pattern * len(list_name[1])+ '#' + pattern * len(list_name[2]))
+            elif (len(list_name) == 4):
+                data = data.replace(person_name, pattern * len(list_name[0]) + '#' + pattern * len(list_name[1])+ '#' + pattern * len(list_name[2])+ '#' + pattern * len(list_name[3]))
+        
         list_redacted_data.append(data)
     return list_redacted_data
 
@@ -160,6 +162,7 @@ def get_redactednameentities(list_filedata):
 def ExtractFeatures_redact_data(totaldata):
     redacted_name_features={}
     redactednames_featureslist=[]
+    pattern = '\u2588'
     for redacteddocument in totaldata:
         for item in redacteddocument.split(' '):
             wordlengthlist=[]
@@ -167,7 +170,7 @@ def ExtractFeatures_redact_data(totaldata):
             list=item.split('#')
             count=0
             for it in list:
-                if(it.startswith('█')):
+                if(it.startswith(pattern)):
                     wordlist.append(it)
                     wordlengthlist.append(len(it))
                     count+=1
