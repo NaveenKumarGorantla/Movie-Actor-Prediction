@@ -18,16 +18,17 @@ def get_traindata(input_files):
             list_filepaths.append(filepaths)
 
     filepaths_list = nltk.flatten(list_filepaths)
-    filepaths_list = filepaths_list[:200]
-    print('length_train',len(filepaths_list))
+    filepaths_list = filepaths_list[:100]
+    print('Text files in Train data',len(filepaths_list))
     #print(filepaths_list)
     for filepath in filepaths_list:
         fileopen = open(filepath)
         file_data = fileopen.read()
         file_data = file_data.replace("<br />"," ")
+        #file_data = re.sub(r'[^a-zA-Z0-9]'," ",file_data)
         list_filedata.append(file_data)
         fileopen.close()
-    print(list_filedata[0:10])
+    #print(list_filedata[0:10])
     return list_filedata
 
 def get_testdata(input_files):
@@ -43,8 +44,8 @@ def get_testdata(input_files):
 
     filepaths_list = nltk.flatten(list_filepaths)
     filepaths_list = filepaths_list[0:50]
-    print('length_test',len(filepaths_list))
-    print(filepaths_list)
+    print('Text files in Text data',len(filepaths_list))
+    #print(filepaths_list)
     for filepath in filepaths_list:
         fileopen = open(filepath)
         file_data = fileopen.read()
@@ -54,37 +55,43 @@ def get_testdata(input_files):
     return list_filedata
 
 
-def find_entity(totaldata):
-    documentcount=0
-    print("length of total data in find entity",len(totaldata))
-    nameslist = []
-    for doc in totaldata:
-        documentwordcount=word_tokenize(doc)
-        documentcount+=1
-        #print(documentcount)
-        chunklist = nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(doc)))
-        for chunk in chunklist.subtrees(filter=lambda t: t.label() == 'PERSON'):
-            name =[];namelength = 0;wordscount = 0; wordlengthlist = [];
-            #print(chunk)
-            for leave in chunk.leaves():
-                #print(leave)
-                name.append(leave[0])
-                wordscount += 1
-                wordlengthlist.append(len(leave[0]))
-            if(len(wordlengthlist)<3):
-                wordlengthlist.append(0);wordlengthlist.append(0);
-            name = ' '.join(name)
-            namelength = len(name)
-            dict = {'name': name,'wordscount': wordscount, 'Firstwordlength': wordlengthlist[0], 'Secondwordlength': wordlengthlist[1], 'Thirdwordlength': wordlengthlist[2], 'name_length': namelength}
-            nameslist.append(dict)
-    return nameslist
+def get_named_entities(list_filedata):
+    if ( len(list_filedata) == 0):
+        raise Exception('Empty text data')
+    Dictionary_list = []
+    for data in list_filedata:
+
+        words = nltk.word_tokenize(data)
+        word_tokens = nltk.pos_tag(words)
+        named_entities = nltk.ne_chunk(word_tokens)
+    
+        for entity in named_entities.subtrees():
+            word_name =[]
+            total_words = 0
+            length_words = [];
+            length_words = [ 0 for i in range(100)]
+            i = 0
+            if ( entity.label() == 'PERSON'):
+                for leaf in entity.leaves():
+                    word_name.append(leaf[0])
+                    print(leaf[0])
+                    total_words += 1
+                    length_words[i]= len( leaf[0])
+                    i = i + 1
+                word_name = ' '.join(word_name)
+                print(word_name)
+                total_length = len(word_name)
+                dict = {'name_feature': word_name,'Count feature of words': total_words, 'Feature length 1': length_words[0], 'Feature Length 2': length_words[1], 'Feature Length 3': length_words[2], 'total_feature_length': total_length}
+                Dictionary_list.append(dict)
+    print(Dictionary_list[0:10])
+    return Dictionary_list
 
 
 #Training
 
 inputfiledata = get_traindata([['aclImdb/train/pos/*.txt']])
 #print("traindata",inputfiledata[0:10])
-trainingdata=find_entity(inputfiledata)
+trainingdata=get_named_entities(inputfiledata)
 #print('training data',trainingdata)
 
 from sklearn.feature_extraction import DictVectorizer
@@ -95,8 +102,8 @@ import numpy as np
 y_train = []
 x_train = []
 for item in trainingdata:
-    y_train.append(item['name'])
-    del item['name']
+    y_train.append(item['name_feature'])
+    del item['name_feature']
     x_train.append(item)
 
 vec = DictVectorizer(sparse=False)
