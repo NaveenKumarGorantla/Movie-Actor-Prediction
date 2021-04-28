@@ -115,9 +115,8 @@ def Model_training():
 
     return model
 
-model = Model_training()
 
-def get_redactednameentities(list_filedata):
+def get_redacted_data(list_filedata):
     
     if ( len(list_filedata) == 0):
         raise Exception('Empty text data')
@@ -159,73 +158,73 @@ def get_redactednameentities(list_filedata):
 
 #redaction
 
-def ExtractFeatures_redact_data(totaldata):
-    redacted_name_features={}
-    redactednames_featureslist=[]
+def get_features_redact_data(list_filedata):
+    redacted_names={}
+    featureslist=[]
     pattern = '\u2588'
-    for redacteddocument in totaldata:
-        for item in redacteddocument.split(' '):
+    for data in list_filedata:
+        list_data = data.split(' ')
+        for i in list_data:
             wordlengthlist=[]
             wordlist=[]
-            list=item.split('#')
+            list_word=i.split('#')
             count=0
-            for it in list:
-                if(it.startswith(pattern)):
-                    wordlist.append(it)
-                    wordlengthlist.append(len(it))
+            for word in list_word:
+                if(word.startswith(pattern)):
+                    wordlist.append(word)
+                    wordlengthlist.append(len(word))
                     count+=1
-            #print(item,count)
+                    
             if(len(wordlengthlist)<4):
                 wordlengthlist.append(0);wordlengthlist.append(0);wordlengthlist.append(0)
             if(count>0):
-                redacted_name_features = {'F1': ' '.join(wordlist), 'F2': count, 'F3': wordlengthlist[0],'F4': wordlengthlist[1], 'F5': wordlengthlist[2],'F6': len(' '.join(wordlist))}
+                redacted_names = {'F1': ' '.join(wordlist), 'F2': count, 'F3': wordlengthlist[0],'F4': wordlengthlist[1], 'F5': wordlengthlist[2],'F6': len(' '.join(wordlist))}
                 #print(redacted_name_features)
-                redactednames_featureslist.append(redacted_name_features)
-    return redactednames_featureslist
+                featureslist.append(redacted_names)
+    return featureslist
+
+def feature_prediction ():
+
+    model = Model_training()
+    testfiledata=get_testdata([['aclImdb/test/pos/*.txt']])
+    print(testfiledata)
+    redacted_data=get_redacted_data(testfiledata)
+    print(redacted_data)
+    features=get_features_redact_data(redacted_data)
+    print(features)
+
+    #predicting
+    vec = DictVectorizer(sparse=False)
+    x_test=[]
+    y_test=[]
+
+    for item in features:
+        y_test.append(item['F1'])
+        del item['F1']
+        x_test.append(item)
+    x_test = vec.fit_transform(x_test)
 
 
+    y_pred =  model.predict(x_test)
+
+    return y_pred
 
 
+def file_output ( y_pred):
 
-#Testing
-
-testfiledata=get_testdata([['aclImdb/test/pos/*.txt']])
-print(testfiledata)
-redacteddocuments=get_redactednameentities(testfiledata)
-print(redacteddocuments)
-redactedfeatureslist=ExtractFeatures_redact_data(redacteddocuments)
-print(redactedfeatureslist)
-
-#predicting
-vec = DictVectorizer(sparse=False)
-x_test=[]
-y_test=[]
-redacteddocumentcount=0
-for item in redactedfeatureslist:
-    redacteddocumentcount+=1
-    #print(redacteddocumentcount)
-    # print(name_dict['name'])
-    y_test.append(item['F1'])
-    del item['F1']
-    x_test.append(item)
-x_test = vec.fit_transform(x_test)
-
-#model = Model_training()
-
-y_pred =  model.predict(x_test)
-#print('Score', model.score(x_test, y_test))
-#print(y_pred)
-newfilepath = os.path.join(os.getcwd(),'outputfile')
-if not os.path.exists(newfilepath):
-    os.makedirs(newfilepath)
-    with open(os.path.join(newfilepath, 'output'), 'w') as outputfile:
-        for item in y_pred:
-            outputfile.write(item)
-elif os.path.exists(newfilepath):
-    with open(os.path.join(newfilepath, 'output'), 'w') as outputfile:
-        count = 1
-        for item in y_pred: 
-            outputfile.write(str(count)+"." +" "+ item+ " / ")
-            count = count + 1
+    newfilepath = os.path.join(os.getcwd(),'outputfile')
+    if not os.path.exists(newfilepath):
+        os.makedirs(newfilepath)
+        with open(os.path.join(newfilepath, 'output'), 'w') as outputfile:
+            for item in y_pred:
+                outputfile.write(item)
+    elif os.path.exists(newfilepath):
+        with open(os.path.join(newfilepath, 'output'), 'w') as outputfile:
+            count = 1
+            for item in y_pred: 
+                outputfile.write(str(count)+"." +" "+ item+ " / ")
+                count = count + 1
 
 
+y_pred = feature_prediction()
+file_output(y_pred)
