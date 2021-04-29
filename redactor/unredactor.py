@@ -177,7 +177,6 @@ def get_features_redact_data(list_filedata):
             length = len(full_name)
             if(count != 0):
                 redacted_names = {'F1': full_name, 'F2': count, 'F3': length_words[0],'F4': length_words[1], 'F5': length_words[2],'F6': length}
-                #print(redacted_name_features)
                 featureslist.append(redacted_names)
     return featureslist
 
@@ -222,5 +221,5 @@ def file_output ( predicted_names):
 
 
 
-y_pred = feature_prediction()
-file_output(y_pred)
+prediction = feature_prediction()
+file_output(prediction)
