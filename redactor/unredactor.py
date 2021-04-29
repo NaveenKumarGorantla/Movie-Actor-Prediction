@@ -14,10 +14,12 @@ def get_traindata(input_files):
         raise   Exception('empty values')
     list_filedata = []
     list_filepaths =[]
+    #print(input_files)
     for eachfile in input_files:
         for filename in eachfile:
             filename = filename
             filepaths = glob.glob(str(filename))
+            #print(filepaths)
             list_filepaths.append(filepaths)
 
     filepaths_list = nltk.flatten(list_filepaths)
@@ -117,7 +119,7 @@ def model_training():
 
 
 def get_redacted_data(list_filedata):
-    
+   
     if ( len(list_filedata) == 0):
         raise Exception('Empty text data')
     list_redacted_data = []
@@ -160,7 +162,6 @@ def get_features_redact_data(list_filedata):
 
     if ( len(list_filedata) == 0):
         raise Exception('Empty text data')
-
     redacted_names={}
     featureslist=[]
     pattern = '\u2588'
@@ -209,9 +210,6 @@ def feature_prediction():
 
 
 def file_output(predicted_names):
-
-    if ( len(predicted_names) == 0):
-        raise Exception('Empty text data')
 
     newfilepath = os.path.join(os.getcwd(),'outputfile')
     if not os.path.exists(newfilepath):
