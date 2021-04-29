@@ -90,7 +90,7 @@ def get_named_entities(list_filedata):
     return Dictionary_list
 
 
-def Model_training():
+def model_training():
 
     train_data = get_traindata([['aclImdb/train/pos/*.txt']])
 
@@ -99,10 +99,10 @@ def Model_training():
         y_train = []
         x_train = []
         
-        for item in named_entities:
-            y_train.append(item['F1'])
-            del item['F1']
-            x_train.append(item)
+        for i in named_entities:
+            y_train.append(i['F1'])
+            del i['F1']
+            x_train.append(i)
 
         vec = DictVectorizer(sparse=False)
         x_train = vec.fit_transform(x_train)
@@ -142,21 +142,19 @@ def get_redacted_data(list_filedata):
             print(list_name)
             pattern = '\u2588'
             if(len(list_name)==1):
-                data = data.replace(person_name, pattern * len(list_name)+'#')
+                data = data.replace(person_name, pattern * len(list_name)+'$')
             elif(len(list_name) == 2):
-                data = data.replace(person_name, pattern * len(list_name[0])+'#'+ pattern * len(list_name[1]))
+                data = data.replace(person_name, pattern * len(list_name[0])+'$'+ pattern * len(list_name[1]))
             elif (len(list_name) == 3):
-                data = data.replace(person_name, pattern * len(list_name[0]) +'#'+ pattern * len(list_name[1])+ '#' + pattern * len(list_name[2]))
+                data = data.replace(person_name, pattern * len(list_name[0]) +'$'+ pattern * len(list_name[1])+ '$' + pattern * len(list_name[2]))
             elif (len(list_name) == 4):
-                data = data.replace(person_name, pattern * len(list_name[0]) + '#' + pattern * len(list_name[1])+ '#' + pattern * len(list_name[2])+ '#' + pattern * len(list_name[3]))
+                data = data.replace(person_name, pattern * len(list_name[0]) + '$' + pattern * len(list_name[1])+ '$' + pattern * len(list_name[2])+ '$' + pattern * len(list_name[3]))
         
         list_redacted_data.append(data)
     return list_redacted_data
 
 
 
-
-#redaction
 
 def get_features_redact_data(list_filedata):
     redacted_names={}
@@ -165,27 +163,27 @@ def get_features_redact_data(list_filedata):
     for data in list_filedata:
         list_data = data.split(' ')
         for i in list_data:
-            wordlengthlist=[]
-            wordlist=[]
-            list_word=i.split('#')
+            length_words=[]
+            list_words=[]
+            list_word=i.split('$')
             count=0
+            length_words = [ 0 for i in range(100)]
             for word in list_word:
                 if(word.startswith(pattern)):
-                    wordlist.append(word)
-                    wordlengthlist.append(len(word))
+                    list_words.append(word)
+                    length_words.append(len(word))
                     count+=1
-                    
-            if(len(wordlengthlist)<4):
-                wordlengthlist.append(0);wordlengthlist.append(0);wordlengthlist.append(0)
-            if(count>0):
-                redacted_names = {'F1': ' '.join(wordlist), 'F2': count, 'F3': wordlengthlist[0],'F4': wordlengthlist[1], 'F5': wordlengthlist[2],'F6': len(' '.join(wordlist))}
+            full_name = ' '.join(list_words)
+            length = len(full_name)
+            if(count != 0):
+                redacted_names = {'F1': full_name, 'F2': count, 'F3': length_words[0],'F4': length_words[1], 'F5': length_words[2],'F6': length}
                 #print(redacted_name_features)
                 featureslist.append(redacted_names)
     return featureslist
 
-def feature_prediction ():
+def feature_prediction():
 
-    model = Model_training()
+    model = model_training()
     testfiledata=get_testdata([['aclImdb/test/pos/*.txt']])
     print(testfiledata)
     redacted_data=get_redacted_data(testfiledata)
@@ -193,24 +191,21 @@ def feature_prediction ():
     features=get_features_redact_data(redacted_data)
     print(features)
 
-    #predicting
     vec = DictVectorizer(sparse=False)
     x_test=[]
     y_test=[]
 
-    for item in features:
-        y_test.append(item['F1'])
-        del item['F1']
-        x_test.append(item)
+    for f in features:
+        y_test.append(f['F1'])
+        del f['F1']
+        x_test.append(f)
     x_test = vec.fit_transform(x_test)
+    predicted_names =  model.predict(x_test)
+
+    return predicted_names
 
 
-    y_pred =  model.predict(x_test)
-
-    return y_pred
-
-
-def file_output ( y_pred):
+def file_output ( predicted_names):
 
     newfilepath = os.path.join(os.getcwd(),'outputfile')
     if not os.path.exists(newfilepath):
@@ -221,9 +216,10 @@ def file_output ( y_pred):
     elif os.path.exists(newfilepath):
         with open(os.path.join(newfilepath, 'output'), 'w') as outputfile:
             count = 1
-            for item in y_pred: 
-                outputfile.write(str(count)+"." +" "+ item+ " / ")
+            for name in predicted_names: 
+                outputfile.write(str(count)+"." +" "+ name + " / ")
                 count = count + 1
+
 
 
 y_pred = feature_prediction()
