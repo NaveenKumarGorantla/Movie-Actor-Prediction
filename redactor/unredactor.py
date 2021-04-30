@@ -74,7 +74,7 @@ def get_features_unredacted_data(list_filedata):
             word_name =[]
             total_words = 0
             length_words = [];
-            length_words = [ 0 for i in range(100)]
+            length_words = [ 0 for i in range(20)]
             i = 0
             if ( entity.label() == 'PERSON'):
                 for leaf in entity.leaves():
@@ -86,7 +86,8 @@ def get_features_unredacted_data(list_filedata):
                 word_name = ' '.join(word_name)
                 #print(word_name)
                 total_length = len(word_name)
-                dict = {'F1': word_name,'F2': total_words, 'F3': length_words[0], 'F4': length_words[1], 'F5': length_words[2], 'F6': total_length}
+                dict = {'F1': word_name,'F2': total_words, 'F3': length_words[0], 'F4': length_words[1], 'F5': length_words[2], 'F6': total_length, 'F7': max (length_words) ,
+                        'F8': length_words[0]+ length_words[2], 'F9': length_words[1] + length_words[2],'F10': length_words[0] + length_words[1] }
                 Dictionary_list.append(dict)
     #print(Dictionary_list[0:10])
     return Dictionary_list
@@ -104,11 +105,11 @@ def model_training():
         
         for i in named_entities:
             y_train.append(i['F1'])
-            del i['F1']
+            i.pop('F1')
             x_train.append(i)
 
-        vec = DictVectorizer(sparse=False)
-        x_train = vec.fit_transform(x_train)
+        vectorizer = DictVectorizer(sparse=False)
+        x_train = vectorizer.fit_transform(x_train)
         y_train = np.array(y_train)
         model= MultinomialNB()
         model.fit(x_train, y_train)
@@ -183,9 +184,10 @@ def get_features_redact_data(list_filedata):
                     i = i + 1
             full_name = ' '.join(list_words)
             length = len(full_name)
-            print('length of redacted words',length_words)
+            #print('length of redacted words',length_words)
             if(count != 0):
-                redacted_names = {'F1': full_name, 'F2': count, 'F3': length_words[0],'F4': length_words[1], 'F5':length_words[2],'F6': length}
+                redacted_names = {'F1': full_name, 'F2': count, 'F3': length_words[0],'F4': length_words[1], 'F5':length_words[2],'F6': length, 'F7': max(length_words), 'F8':
+                        length_words[0] + length_words[2], 'F9': length_words[1]+ length_words[2], 'F10': length_words[0] + length_words[1] }
                 featureslist.append(redacted_names)
     return featureslist
 
@@ -199,15 +201,15 @@ def feature_prediction():
     features=get_features_redact_data(redacted_data)
     print('features of redacted data',features)
 
-    vec = DictVectorizer(sparse=False)
+    vectorizer = DictVectorizer(sparse=False)
     x_test=[]
     y_test=[]
 
     for f in features:
         y_test.append(f['F1'])
-        del f['F1']
+        f.pop('F1')
         x_test.append(f)
-    x_test = vec.fit_transform(x_test)
+    x_test = vectorizer.fit_transform(x_test)
     predicted_names =  model.predict(x_test)
 
     return predicted_names
