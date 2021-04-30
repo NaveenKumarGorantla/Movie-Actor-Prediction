@@ -48,7 +48,7 @@ def get_testdata(input_files):
             list_filepaths.append(filepaths)
 
     filepaths_list = nltk.flatten(list_filepaths)
-    filepaths_list = filepaths_list[1:2]
+    filepaths_list = filepaths_list[1:5]
     print('Text files in Test data',len(filepaths_list))
     #print(filepaths_list)
     for filepath in filepaths_list:
@@ -140,7 +140,7 @@ def get_redacted_data(list_filedata):
                 list_person_names.append(word_name)
     
         set1 = list(set(list_person_names))
-        print('set of redacted names :',set1)
+        #print('set of redacted names :',set1)
         for person_name in set1:
             list_name=person_name.split()
             #print(list_name)
@@ -159,6 +159,7 @@ def get_redacted_data(list_filedata):
                 data = data.replace(person_name, pattern)
         
         list_redacted_data.append(data)
+    print(list_redacted_data)
     return list_redacted_data
 
 
@@ -238,5 +239,5 @@ def file_output(predicted_names):
 if __name__ == '__main__':
 
     prediction = feature_prediction()
-    print ('List of names predicted',prediction)
+    print ('List of names predicted: ',prediction)
     file_output(prediction)
