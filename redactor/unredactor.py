@@ -140,7 +140,7 @@ def get_redacted_data(list_filedata):
                 list_person_names.append(word_name)
     
         set1 = list(set(list_person_names))
-        print('set of name list :',set1)
+        print('set of redacted names :',set1)
         for person_name in set1:
             list_name=person_name.split()
             #print(list_name)
@@ -199,11 +199,11 @@ def feature_prediction():
 
     model = model_training()
     testfiledata=get_testdata([['aclImdb/test/pos/*.txt']])
-    print('unredacted test file data:',testfiledata)
+    #print('unredacted test file data:',testfiledata)
     redacted_data=get_redacted_data(testfiledata)
-    print('redacted test file data',redacted_data)
+    #print('redacted test file data',redacted_data)
     features=get_features_redact_data(redacted_data)
-    print('features of redacted data',features)
+    #print('features of redacted data',features)
 
     vectorizer = DictVectorizer(sparse=False)
     x_test=[]
@@ -238,4 +238,5 @@ def file_output(predicted_names):
 if __name__ == '__main__':
 
     prediction = feature_prediction()
+    print ('List of names predicted',prediction)
     file_output(prediction)
