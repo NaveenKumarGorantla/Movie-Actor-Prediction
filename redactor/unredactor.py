@@ -146,13 +146,17 @@ def get_redacted_data(list_filedata):
             #print(list_name)
             pattern = '\u2588'
             if(len(list_name)==1):
-                data = data.replace(person_name, pattern * len(list_name[0])+'$')
+                pattern =  pattern * len(list_name[0]) + '$'
+                data = data.replace(person_name, pattern)
             elif(len(list_name) == 2):
-                data = data.replace(person_name, pattern * len(list_name[0])+'$'+ pattern * len(list_name[1]))
+                pattern = pattern * len(list_name[0])+'$'+ pattern * len(list_name[1])
+                data = data.replace(person_name, pattern )
             elif (len(list_name) == 3):
-                data = data.replace(person_name, pattern * len(list_name[0]) +'$'+ pattern * len(list_name[1])+ '$' + pattern * len(list_name[2]))
+                pattern = pattern * len(list_name[0]) +'$'+ pattern * len(list_name[1])+ '$' + pattern * len(list_name[2])
+                data = data.replace(person_name, pattern)
             elif (len(list_name) == 4):
-                data = data.replace(person_name, pattern * len(list_name[0]) + '$' + pattern * len(list_name[1])+ '$' + pattern * len(list_name[2])+ '$' + pattern * len(list_name[3]))
+                pattern = pattern * len(list_name[0]) + '$' + pattern * len(list_name[1])+ '$' + pattern * len(list_name[2])+ '$' + pattern * len(list_name[3])
+                data = data.replace(person_name, pattern)
         
         list_redacted_data.append(data)
     return list_redacted_data
