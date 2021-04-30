@@ -48,7 +48,7 @@ def get_testdata(input_files):
             list_filepaths.append(filepaths)
 
     filepaths_list = nltk.flatten(list_filepaths)
-    filepaths_list = filepaths_list[0:1]
+    filepaths_list = filepaths_list[1:2]
     print('Text files in Test data',len(filepaths_list))
     #print(filepaths_list)
     for filepath in filepaths_list:
@@ -60,7 +60,7 @@ def get_testdata(input_files):
     return list_filedata
 
 
-def get_named_entities(list_filedata):
+def get_features_unredacted_data(list_filedata):
     if ( len(list_filedata) == 0):
         raise Exception('Empty text data')
     Dictionary_list = []
@@ -94,10 +94,11 @@ def get_named_entities(list_filedata):
 
 def model_training():
 
-    train_data = get_traindata([['aclImdb/train/pos/*.txt']])
+    train_datapath = [['aclImdb/train/pos/*.txt']]
+    train_data = get_traindata(train_datapath)
 
     if ( len(train_data) > 0):
-        named_entities=get_named_entities(train_data)
+        named_entities=get_features_unredacted_data(train_data)
         y_train = []
         x_train = []
         
@@ -141,10 +142,10 @@ def get_redacted_data(list_filedata):
         print('set of name list :',set1)
         for person_name in set1:
             list_name=person_name.split()
-            print(list_name)
+            #print(list_name)
             pattern = '\u2588'
             if(len(list_name)==1):
-                data = data.replace(person_name, pattern * len(list_name)+'$')
+                data = data.replace(person_name, pattern * len(list_name[0])+'$')
             elif(len(list_name) == 2):
                 data = data.replace(person_name, pattern * len(list_name[0])+'$'+ pattern * len(list_name[1]))
             elif (len(list_name) == 3):
@@ -172,16 +173,19 @@ def get_features_redact_data(list_filedata):
             list_words=[]
             list_word=i.split('$')
             count=0
-            length_words = [ 0 for i in range(100)]
+            length_words = [ 0 for i in range(5)]
+            i = 0
             for word in list_word:
                 if(word.startswith(pattern)):
                     list_words.append(word)
-                    length_words.append(len(word))
+                    length_words[i] = len(word)
                     count+=1
+                    i = i + 1
             full_name = ' '.join(list_words)
             length = len(full_name)
+            print('length of redacted words',length_words)
             if(count != 0):
-                redacted_names = {'F1': full_name, 'F2': count, 'F3': length_words[0],'F4': length_words[1], 'F5': length_words[2],'F6': length}
+                redacted_names = {'F1': full_name, 'F2': count, 'F3': length_words[0],'F4': length_words[1], 'F5':length_words[2],'F6': length}
                 featureslist.append(redacted_names)
     return featureslist
 
@@ -189,11 +193,11 @@ def feature_prediction():
 
     model = model_training()
     testfiledata=get_testdata([['aclImdb/test/pos/*.txt']])
-    print(testfiledata)
+    print('unredacted test file data:',testfiledata)
     redacted_data=get_redacted_data(testfiledata)
-    print(redacted_data)
+    print('redacted test file data',redacted_data)
     features=get_features_redact_data(redacted_data)
-    print(features)
+    print('features of redacted data',features)
 
     vec = DictVectorizer(sparse=False)
     x_test=[]
