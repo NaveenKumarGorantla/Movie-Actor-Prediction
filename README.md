@@ -60,6 +60,8 @@ file_output:
 In this method we use the parameter which accepts the list of predicted names from feature_prediction method. We write all the predicted names into a new 
 output text file by creating a new directory named output.
 
-
+Bugs:
+1. if we send empty train and test data then exceptions arise
+2. while running test cases last two lines of code at the bottom of page in unredactor.py file should be commented
 
 
