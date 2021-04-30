@@ -62,6 +62,4 @@ output text file by creating a new directory named output.
 
 Bugs:
 1. if we send empty train and test data then exceptions arise
-2. while running test cases last two lines of code at the bottom of page in unredactor.py file should be commented
-
 

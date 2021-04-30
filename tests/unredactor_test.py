@@ -6,15 +6,15 @@ from redactor import unredactor
 
 def test_get_trained_data():
 
-    data = unredactor.get_traindata([['aclImd/pos/train/*.txt']])
-    if(data is not None):
+    data = unredactor.get_traindata([['aclImdb/pos/train/*.txt']])
+    if(len(data)!= 0):
         assert True
     else:
         assert False
 
 
 def test_get_test_data():
-    data = unredactor.get_testdata([['aclImd/pos/test/*.txt']])
+    data = unredactor.get_testdata([['aclImdb/pos/test/*.txt']])
     if(data is not None):
         assert True
     else:
@@ -24,7 +24,7 @@ def test_redact_data():
     text = [' Blue Sky' ,'Chris Morris', 'John']
 
     data = unredactor.get_redacted_data(text)
-    if ( data):
+    if ( len(data)!= 0):
         assert True
     else:
         assert False
@@ -37,3 +37,5 @@ def test_features_redact_data():
         assert True
     else:
         assert False
+
+ 

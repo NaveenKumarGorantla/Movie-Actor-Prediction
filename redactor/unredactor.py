@@ -235,6 +235,7 @@ def file_output(predicted_names):
                 count = count + 1
 
 
+if __name__ == '__main__':
 
-prediction = feature_prediction()
-file_output(prediction)
+    prediction = feature_prediction()
+    file_output(prediction)
