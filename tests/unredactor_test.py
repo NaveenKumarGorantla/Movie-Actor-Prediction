@@ -6,7 +6,7 @@ from redactor import unredactor
 
 def test_get_trained_data():
 
-    data = unredactor.get_traindata([['aclImdb/pos/train/*.txt']])
+    data = unredactor.get_traindata([['aclImdb/train/pos/*.txt']])
     if(len(data)!= 0):
         assert True
     else:
@@ -14,7 +14,7 @@ def test_get_trained_data():
 
 
 def test_get_test_data():
-    data = unredactor.get_testdata([['aclImdb/pos/test/*.txt']])
+    data = unredactor.get_testdata([['aclImdb/test/pos/*.txt']])
     if(data is not None):
         assert True
     else:
@@ -38,4 +38,11 @@ def test_features_redact_data():
     else:
         assert False
 
- 
+def test_model():
+    model = unredactor.model_training()
+    if (model is not None):
+        assert True
+    else:
+        assert False
+
+
