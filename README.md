@@ -1,6 +1,6 @@
-# cs5293sp21-project2
 
-The Unredactor
+
+Text Data Unredactor
 
 In this Project we are using the redacted documents which contains hidden sensitive information. Based on the information which is hidden we
 are trying to predict the missing information with the help of a trained machine learning model.
