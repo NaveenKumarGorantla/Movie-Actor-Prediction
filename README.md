@@ -12,7 +12,7 @@ Requuirements:
 4.  re 
 5.  os
 6. IMDB Movie Review dataset
-7. 
+
 Imports:
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.naive_bayes import MultinomialNB
