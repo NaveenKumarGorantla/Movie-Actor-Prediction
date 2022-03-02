@@ -5,7 +5,7 @@
 ### - [IMDB Movie Review dataset](https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews)
 
 
-In this Project we are using the redacted documents which contains hidden sensitive information. Based on the information which is hidden we
+In this Project we are using the redacted documents of imdb dataset which contains hidden sensitive information. Based on the information which is hidden we
 are trying to predict the missing information with the help of a trained machine learning model.
 
 ## Requuirements:
